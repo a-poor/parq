@@ -102,6 +102,27 @@ const appDescription = `parq is a tool for exploring parquet files.
 		
 It helps with viewing data in a parquet file, viewing a
 file's schema, and converting data to/from parquet files.
+
+Read more here: https://github.com/a-poor/parq
+File issues here: https://github.com/a-poor/parq/issues
+`
+
+const cmdSchemaDesc = `Prints a table showing a parquet file's column names and data types.
+
+Expects FILENAME to be a valid path to a parquet file with at least 
+one row.
+
+Example:
+
+	$ parq schema path/to/iris.parquet
+
+	Column Name   Data Type  
+	Sepal_length  float64    
+	Sepal_width   float64    
+	Petal_length  float64    
+	Petal_width   float64    
+	Species       string
+
 `
 
 func main() {
@@ -119,10 +140,12 @@ func main() {
 		Description: appDescription,
 		Commands: []*cli.Command{
 			{
-				Name:      "schema",
-				Usage:     "Shows a parquet file's column names and data types.",
-				ArgsUsage: "FILENAME",
-				Flags:     []cli.Flag{},
+				Name:        "schema",
+				Aliases:     []string{"s"},
+				Usage:       "Shows a parquet file's column names and data types.",
+				ArgsUsage:   "FILENAME",
+				Flags:       []cli.Flag{},
+				Description: cmdSchemaDesc,
 				Action: func(c *cli.Context) error {
 					// Check the number of arguments
 					if c.NArg() < 1 {
@@ -132,21 +155,32 @@ func main() {
 						return cli.Exit("Too many arguments. Expected 1.", 1)
 					}
 
-					// Get (& check) the file name
+					// Get the file name argument
 					fileName := c.Args().Get(0)
-					if fileName == "" || !doesFileExist(fileName) {
-						return cli.Exit(fmt.Sprintf("Can't read file %q", fileName), 1)
-					}
 
 					// Read in the parquet file
 					err := printParquetSchema(fileName)
 
-					return err
+					// Check return errors
+					if err == ErrFileNotFound {
+						return cli.Exit("Error: Can't find the specified file.", 1)
+					}
+					if err == ErrCantReadFile {
+						return cli.Exit("Error: Can't read the specified file as parquet.", 1)
+					}
+					if err == ErrNoRowsInFile {
+						return cli.Exit("Error: The specified file doesn't have any rows to read.", 1)
+					}
+					if err != nil {
+						cli.Exit(err, 1)
+					}
+
+					return nil
 				},
 			},
 			{
-				Name:      "show",
-				Aliases:   []string{"all"},
+				Name:      "show-all",
+				Aliases:   []string{"a"},
 				Usage:     "Shows all rows of a parquet file.",
 				ArgsUsage: "FILENAME",
 				Flags: []cli.Flag{
@@ -163,6 +197,7 @@ func main() {
 			},
 			{
 				Name:      "head",
+				Aliases:   []string{"h"},
 				Usage:     "Shows the first n rows of a parquet file.",
 				ArgsUsage: "FILENAME",
 				Flags: []cli.Flag{
@@ -174,11 +209,13 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
+					fmt.Println("You're running 'head'")
 					return nil
 				},
 			},
 			{
 				Name:      "tail",
+				Aliases:   []string{"t"},
 				Usage:     "Shows the last n rows of a parquet file",
 				ArgsUsage: "FILENAME",
 				Flags: []cli.Flag{
@@ -190,11 +227,13 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
+					fmt.Println("You're running 'tail'")
 					return nil
 				},
 			},
 			{
 				Name:      "random",
+				Aliases:   []string{"r"},
 				Usage:     "Shows the n random rows of a parquet file.",
 				ArgsUsage: "FILENAME",
 				Flags: []cli.Flag{
@@ -204,14 +243,17 @@ func main() {
 						Aliases: []string{"n"},
 						Usage:   "Number of rows to show",
 					},
+					// Add --seed flag
 				},
 				Action: func(c *cli.Context) error {
+					fmt.Println("You're running 'random'")
 					return nil
 				},
 			},
 			{
-				Name:  "convert",
-				Usage: "Convert a parquet file to/from another format.",
+				Name:    "convert",
+				Aliases: []string{"c"},
+				Usage:   "Convert a parquet file to/from another format.",
 				Subcommands: []*cli.Command{
 					{
 						Name:      "to",

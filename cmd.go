@@ -12,11 +12,12 @@ import (
 var (
 	ErrFileNotFound = errors.New("file not found")
 	ErrCantReadFile = errors.New("can't read file")
+	ErrNoRowsInFile = errors.New("no rows in file")
 )
 
 func printParquetSchema(path string) error {
 	// Verrify the file exists
-	if !doesFileExist(path) {
+	if path == "" || !doesFileExist(path) {
 		return ErrFileNotFound
 	}
 
@@ -28,6 +29,10 @@ func printParquetSchema(path string) error {
 
 	// TODO: Check the number of rows so the read
 	// doesn't fail
+	nrows := getNumRows(pr)
+	if nrows < 1 {
+		return ErrNoRowsInFile
+	}
 
 	// Read a single row so `pr.ObjType`
 	// gets populated
@@ -58,6 +63,23 @@ func printParquetSchema(path string) error {
 	// Print the table
 	tbl.Print()
 	fmt.Println()
+
+	return nil
+}
+
+func printParquetFile(path string) error {
+	// Verrify the file exists
+	if !doesFileExist(path) {
+		return ErrFileNotFound
+	}
+
+	// Read in the parquet file
+	pr, err := readParquetFile(path)
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrCantReadFile, err)
+	}
+
+	fmt.Println(pr)
 
 	return nil
 }
