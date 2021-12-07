@@ -59,7 +59,7 @@ func doesFileExist(filename string) bool {
 // reader (if possible), as well as a function to close the
 // local file reader.
 func readParquetFile(path string) (*reader.ParquetReader, func() error, error) {
-	fr, err := local.NewLocalFileReader(TestFilePath)
+	fr, err := local.NewLocalFileReader(path)
 	if err != nil {
 		return nil, nil, err
 	}
