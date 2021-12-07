@@ -18,12 +18,6 @@ const Version = "0.0.1"
 
 const TestFilePath = "examples/data/iris.parquet"
 
-// tableHeaderStyle is the color stylers for the table header
-var (
-	tableHeaderStyle   = []color.Attribute{color.FgMagenta, color.Italic}
-	tableFirstRowStyle = []color.Attribute{color.FgYellow}
-)
-
 func formatRow(cols []string, val reflect.Value, index int) []interface{} {
 	var data []interface{}
 	data = append(data, index)
@@ -96,7 +90,7 @@ func runSandbox() {
 	fmt.Println()
 	fmt.Println()
 
-	t2 := table.New("Column_Name", "Data_Type")
+	t2 := table.New("Column Name", "Data Type")
 	t2.WithHeaderFormatter(color.New(color.FgMagenta, color.Bold).SprintfFunc())
 	for _, f := range fs {
 		t2.AddRow(f.Name, f.Type.String())
@@ -145,15 +139,9 @@ func main() {
 					}
 
 					// Read in the parquet file
-					log.Println("Reading in file...", fileName)
+					err := printParquetSchema(fileName)
 
-					// Read the schema
-
-					// Format the schema as a table
-
-					// Print the table
-
-					return nil
+					return err
 				},
 			},
 			{

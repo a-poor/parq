@@ -4,8 +4,15 @@ import (
 	"os"
 	"reflect"
 
+	"github.com/fatih/color"
 	"github.com/xitongsys/parquet-go-source/local"
 	"github.com/xitongsys/parquet-go/reader"
+)
+
+// tableHeaderStyle is the color stylers for the table header
+var (
+	tableHeaderStyle   = []color.Attribute{color.FgMagenta, color.Italic}
+	tableFirstRowStyle = []color.Attribute{color.FgYellow}
 )
 
 type StructFields struct {
@@ -44,16 +51,13 @@ func readParquetFile(path string) (*reader.ParquetReader, error) {
 		return nil, err
 	}
 
-	pr, err := reader.NewParquetReader(fr, nil, 4)
+	pr, err := reader.NewParquetReader(fr, nil, 1)
 	if err != nil {
 		return nil, err
 	}
 	return pr, nil
 }
 
-func getSchema() {
-	// ...
-}
-
-type displayTable struct {
+func getNumRows(pr *reader.ParquetReader) int {
+	return int(pr.GetNumRows())
 }
