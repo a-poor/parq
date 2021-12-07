@@ -55,10 +55,7 @@ func printParquetSchema(path string) error {
 
 	// Populate the table
 	for _, f := range sf {
-		ft := f.Type
-		if ft.Kind() == reflect.Ptr {
-			ft = ft.Elem()
-		}
+		ft := f.getDerefType()
 		tbl.AddRow(f.Name, ft.String())
 	}
 
