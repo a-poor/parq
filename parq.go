@@ -18,18 +18,15 @@ const Version = "0.0.1"
 
 const TestFilePath = "examples/data/iris.parquet"
 
-// getStructFields returns a list of the names of
-// the fields in a struct.
-func getStructFields(t reflect.Type) []string {
-	var fields []string
-	for i := 0; i < t.NumField(); i++ {
-		fields = append(fields, t.Field(i).Name)
-	}
-	return fields
-}
+// tableHeaderStyle is the color stylers for the table header
+var (
+	tableHeaderStyle   = []color.Attribute{color.FgMagenta, color.Italic}
+	tableFirstRowStyle = []color.Attribute{color.FgYellow}
+)
 
-func formatRow(cols []string, val reflect.Value) []interface{} {
+func formatRow(cols []string, val reflect.Value, index int) []interface{} {
 	var data []interface{}
+	data = append(data, index)
 	for _, c := range cols {
 		v := val.FieldByName(c)
 		if v.IsNil() {
@@ -68,19 +65,26 @@ func runSandbox() {
 
 	t := pr.ObjType
 	fs := getStructFields(t)
-
-	ifs := make([]interface{}, len(fs))
-	for i, r := range fs {
-		ifs[i] = r
+	sfs := make([]string, len(fs))
+	for i, f := range fs {
+		sfs[i] = f.Name
 	}
-	headerFmt := color.New(color.FgMagenta, color.Italic).SprintfFunc()
+
+	ifs := make([]interface{}, len(fs)+1)
+	ifs[0] = ""
+	for i, r := range sfs {
+		ifs[i+1] = r
+	}
+	headerFmt := color.New(tableHeaderStyle...).SprintfFunc()
+	firstRowFmt := color.New(tableFirstRowStyle...).SprintfFunc()
 	tbl := table.New(ifs...)
 	tbl.WithHeaderFormatter(headerFmt)
+	tbl.WithFirstColumnFormatter(firstRowFmt)
 
 	for i := 0; i < 5; i++ {
 		r0 := res[i]
 		e := reflect.ValueOf(r0)
-		row := formatRow(fs, e)
+		row := formatRow(sfs, e, i)
 		tbl.AddRow(row...)
 	}
 
@@ -88,7 +92,23 @@ func runSandbox() {
 
 	pr.ReadStop()
 	fr.Close()
+
+	fmt.Println()
+	fmt.Println()
+
+	t2 := table.New("Column_Name", "Data_Type")
+	t2.WithHeaderFormatter(color.New(color.FgMagenta, color.Bold).SprintfFunc())
+	for _, f := range fs {
+		t2.AddRow(f.Name, f.Type.String())
+	}
+	t2.Print()
 }
+
+const appDescription = `parq is a tool for exploring parquet files.
+		
+It helps with viewing data in a parquet file, viewing a
+file's schema, and converting data to/from parquet files.
+`
 
 func main() {
 	app := &cli.App{
@@ -102,7 +122,57 @@ func main() {
 				Email: "code@austinpoor.com",
 			},
 		},
+		Description: appDescription,
 		Commands: []*cli.Command{
+			{
+				Name:      "schema",
+				Usage:     "Shows a parquet file's column names and data types.",
+				ArgsUsage: "FILENAME",
+				Flags:     []cli.Flag{},
+				Action: func(c *cli.Context) error {
+					// Check the number of arguments
+					if c.NArg() < 1 {
+						return cli.Exit("No file specified", 1)
+					}
+					if c.NArg() > 1 {
+						return cli.Exit("Too many arguments. Expected 1.", 1)
+					}
+
+					// Get (& check) the file name
+					fileName := c.Args().Get(0)
+					if fileName == "" || !doesFileExist(fileName) {
+						return cli.Exit(fmt.Sprintf("Can't read file %q", fileName), 1)
+					}
+
+					// Read in the parquet file
+					log.Println("Reading in file...", fileName)
+
+					// Read the schema
+
+					// Format the schema as a table
+
+					// Print the table
+
+					return nil
+				},
+			},
+			{
+				Name:      "show",
+				Aliases:   []string{"all"},
+				Usage:     "Shows all rows of a parquet file.",
+				ArgsUsage: "FILENAME",
+				Flags: []cli.Flag{
+					&cli.IntFlag{
+						Name:    "n-rows",
+						Value:   10,
+						Aliases: []string{"n"},
+						Usage:   "Number of rows to show",
+					},
+				},
+				Action: func(c *cli.Context) error {
+					return nil
+				},
+			},
 			{
 				Name:      "head",
 				Usage:     "Shows the first n rows of a parquet file.",
@@ -152,32 +222,6 @@ func main() {
 				},
 			},
 			{
-				Name:      "show",
-				Aliases:   []string{"all"},
-				Usage:     "Shows all rows of a parquet file.",
-				ArgsUsage: "FILENAME",
-				Flags: []cli.Flag{
-					&cli.IntFlag{
-						Name:    "n-rows",
-						Value:   10,
-						Aliases: []string{"n"},
-						Usage:   "Number of rows to show",
-					},
-				},
-				Action: func(c *cli.Context) error {
-					return nil
-				},
-			},
-			{
-				Name:      "schema",
-				Usage:     "Shows a parquet file's column names and data types.",
-				ArgsUsage: "FILENAME",
-				Flags:     []cli.Flag{},
-				Action: func(c *cli.Context) error {
-					return nil
-				},
-			},
-			{
 				Name:  "convert",
 				Usage: "Convert a parquet file to/from another format.",
 				Subcommands: []*cli.Command{
@@ -204,8 +248,11 @@ func main() {
 			},
 		},
 	}
-
+	// Run the app and check for an error
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
+
+	// log.Println(app.Name)
+	// runSandbox()
 }
