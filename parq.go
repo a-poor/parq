@@ -13,6 +13,9 @@ import (
 	"github.com/xitongsys/parquet-go/reader"
 )
 
+// Version is the current version of the CLI
+const Version = "0.0.1"
+
 const TestFilePath = "examples/data/iris.parquet"
 
 // getStructFields returns a list of the names of
@@ -87,17 +90,6 @@ func runSandbox() {
 	fr.Close()
 }
 
-/*
-
-head
-tail
-random
-all / show
-convert (to/from parquet)
-schema (show the table schema aka column names and types)
-
-*/
-
 func main() {
 	app := &cli.App{
 		Name:  "parq",
@@ -153,6 +145,7 @@ func main() {
 			},
 			{
 				Name:      "show",
+				Aliases:   []string{"all"},
 				Usage:     "Shows all rows of a parquet file.",
 				ArgsUsage: "FILENAME",
 				Flags: []cli.Flag{
@@ -168,7 +161,7 @@ func main() {
 				},
 			},
 			{
-				Name:      "about",
+				Name:      "schema",
 				Usage:     "Shows a parquet file's column names and data types.",
 				ArgsUsage: "FILENAME",
 				Flags:     []cli.Flag{},
@@ -177,12 +170,28 @@ func main() {
 				},
 			},
 			{
-				Name:      "convert",
-				Usage:     "Convert a parquet file to another format.",
-				ArgsUsage: "FILENAME",
-				Flags:     []cli.Flag{},
-				Action: func(c *cli.Context) error {
-					return nil
+				Name:  "convert",
+				Usage: "Convert a parquet file to/from another format.",
+				Subcommands: []*cli.Command{
+					{
+						Name:      "to",
+						Usage:     "Convert a parquet file to another format.",
+						ArgsUsage: "FILENAME",
+						Flags:     []cli.Flag{},
+						Action: func(c *cli.Context) error {
+							return nil
+						},
+					},
+					{
+						Name:      "from",
+						Usage:     "Convert a parquet file from another format.",
+						UsageText: "parq convert from [OPTIONS] <FILENAME>",
+						ArgsUsage: "FILENAME",
+						Flags:     []cli.Flag{},
+						Action: func(c *cli.Context) error {
+							return nil
+						},
+					},
 				},
 			},
 		},
