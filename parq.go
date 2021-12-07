@@ -318,6 +318,4 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// log.Println(app.Name)
-	// runSandbox()
 }
