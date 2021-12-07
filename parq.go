@@ -10,101 +10,6 @@ import (
 // Version is the current version of the CLI
 const Version = "0.0.1"
 
-const TestFilePath = "examples/data/iris.parquet"
-
-// func runSandbox() {
-// 	log.Println("Starting...")
-
-// 	fr, err := local.NewLocalFileReader(TestFilePath)
-// 	if err != nil {
-// 		log.Println("Can't open file")
-// 		return
-// 	}
-
-// 	pr, err := reader.NewParquetReader(fr, nil, 4)
-// 	if err != nil {
-// 		log.Println("Can't create parquet reader", err)
-// 		return
-// 	}
-
-// 	num := int(pr.GetNumRows())
-// 	log.Printf("There are %d rows in the file\n", num)
-// 	fmt.Println()
-
-// 	res, err := pr.ReadByNumber(num)
-// 	if err != nil {
-// 		log.Println("Can't read", err)
-// 		return
-// 	}
-
-// 	t := pr.ObjType
-// 	fs := getStructFields(t)
-// 	sfs := make([]string, len(fs))
-// 	for i, f := range fs {
-// 		sfs[i] = f.Name
-// 	}
-
-// 	ifs := make([]interface{}, len(fs)+1)
-// 	ifs[0] = ""
-// 	for i, r := range sfs {
-// 		ifs[i+1] = r
-// 	}
-// 	headerFmt := color.New(tableHeaderStyle...).SprintfFunc()
-// 	firstRowFmt := color.New(tableFirstRowStyle...).SprintfFunc()
-// 	tbl := table.New(ifs...)
-// 	tbl.WithHeaderFormatter(headerFmt)
-// 	tbl.WithFirstColumnFormatter(firstRowFmt)
-
-// 	for i := 0; i < 5; i++ {
-// 		r0 := res[i]
-// 		e := reflect.ValueOf(r0)
-// 		row := formatRow(sfs, e, i)
-// 		tbl.AddRow(row...)
-// 	}
-
-// 	tbl.Print()
-
-// 	pr.ReadStop()
-// 	fr.Close()
-
-// 	fmt.Println()
-// 	fmt.Println()
-
-// 	t2 := table.New("Column Name", "Data Type")
-// 	t2.WithHeaderFormatter(color.New(color.FgMagenta, color.Bold).SprintfFunc())
-// 	for _, f := range fs {
-// 		t2.AddRow(f.Name, f.Type.String())
-// 	}
-// 	t2.Print()
-// }
-
-const appDescription = `parq is a tool for exploring parquet files.
-		
-It helps with viewing data in a parquet file, viewing a
-file's schema, and converting data to/from parquet files.
-
-Read more here: https://github.com/a-poor/parq
-Submit issues here: https://github.com/a-poor/parq/issues
-`
-
-const cmdSchemaDesc = `Prints a table showing a parquet file's column names and data types.
-
-Expects FILENAME to be a valid path to a parquet file with at least 
-one row.
-
-Example:
-
-	$ parq schema path/to/iris.parquet
-
-	Column Name   Data Type  
-	Sepal_length  float64    
-	Sepal_width   float64    
-	Petal_length  float64    
-	Petal_width   float64    
-	Species       string
-
-`
-
 func main() {
 	app := &cli.App{
 		Name:      "parq",
@@ -159,10 +64,11 @@ func main() {
 				},
 			},
 			{
-				Name:      "show",
-				Aliases:   []string{"all", "a"},
-				Usage:     "Shows all rows of a parquet file.",
-				ArgsUsage: "FILENAME",
+				Name:        "show",
+				Aliases:     []string{"all", "a"},
+				Usage:       "Shows all rows of a parquet file.",
+				Description: cmdShowDesc,
+				ArgsUsage:   "FILENAME",
 				Flags: []cli.Flag{
 					&cli.IntFlag{
 						Name:    "n-rows",
@@ -205,10 +111,11 @@ func main() {
 				},
 			},
 			{
-				Name:      "head",
-				Aliases:   []string{"h"},
-				Usage:     "Shows the first n rows of a parquet file.",
-				ArgsUsage: "FILENAME",
+				Name:        "head",
+				Aliases:     []string{"h"},
+				Usage:       "Shows the first n rows of a parquet file.",
+				Description: cmdHeadDesc,
+				ArgsUsage:   "FILENAME",
 				Flags: []cli.Flag{
 					&cli.IntFlag{
 						Name:    "n-rows",
@@ -259,10 +166,11 @@ func main() {
 				},
 			},
 			{
-				Name:      "tail",
-				Aliases:   []string{"t"},
-				Usage:     "Shows the last n rows of a parquet file",
-				ArgsUsage: "FILENAME",
+				Name:        "tail",
+				Aliases:     []string{"t"},
+				Usage:       "Shows the last n rows of a parquet file",
+				Description: cmdTailDesc,
+				ArgsUsage:   "FILENAME",
 				Flags: []cli.Flag{
 					&cli.IntFlag{
 						Name:    "n-rows",
@@ -313,10 +221,11 @@ func main() {
 				},
 			},
 			{
-				Name:      "random",
-				Aliases:   []string{"r"},
-				Usage:     "Shows the n random rows of a parquet file.",
-				ArgsUsage: "FILENAME",
+				Name:        "random",
+				Aliases:     []string{"r"},
+				Usage:       "Shows the n random rows of a parquet file.",
+				Description: cmdRandomDesc,
+				ArgsUsage:   "FILENAME",
 				Flags: []cli.Flag{
 					&cli.IntFlag{
 						Name:    "n-rows",
