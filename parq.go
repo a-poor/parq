@@ -92,8 +92,16 @@ func runSandbox() {
 
 func main() {
 	app := &cli.App{
-		Name:  "parq",
-		Usage: "A tool for exploring parquet files",
+		Name:      "parq",
+		Usage:     "A tool for exploring parquet files",
+		Version:   Version,
+		Copyright: "Copyright (c) 2021 Austin Poor",
+		Authors: []*cli.Author{
+			{
+				Name:  "Austin Poor",
+				Email: "code@austinpoor.com",
+			},
+		},
 		Commands: []*cli.Command{
 			{
 				Name:      "head",
