@@ -13,8 +13,12 @@ type showAllConfig struct {
 }
 
 func (sa showAllConfig) getIndexes(nRows int) []int {
-	idxs := make([]int, nRows)
-	for i := 0; i < nRows; i++ {
+	var n int
+	if nRows > 0 {
+		n = nRows
+	}
+	idxs := make([]int, n)
+	for i := 0; i < n; i++ {
 		idxs[i] = i
 	}
 	return idxs
