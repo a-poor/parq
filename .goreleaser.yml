@@ -23,8 +23,8 @@ archives:
 gomod:
   proxy: true
 
-nfpms:
-- account: a-poor
+furies:
+  - account: a-poor
 
 brews:
   - name: parq
