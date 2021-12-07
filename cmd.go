@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	ErrFileNotFound = errors.New("file not found")
-	ErrCantReadFile = errors.New("can't read file")
-	ErrNoRowsInFile = errors.New("no rows in file")
+	ErrFileNotFound       = errors.New("file not found")
+	ErrCantReadFile       = errors.New("can't read file")
+	ErrNoRowsInFile       = errors.New("no rows in file")
+	ErrReadingParquetFile = errors.New("unable to read parquet file")
 )
 
 func printParquetSchema(path string) error {
@@ -22,13 +23,14 @@ func printParquetSchema(path string) error {
 	}
 
 	// Read in the parquet file
-	pr, err := readParquetFile(path)
+	pr, pfClose, err := readParquetFile(path)
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrCantReadFile, err)
 	}
+	defer pfClose()
+	defer pr.ReadStop()
 
-	// TODO: Check the number of rows so the read
-	// doesn't fail
+	// Check the number of rows so the read doesn't fail
 	nrows := getNumRows(pr)
 	if nrows < 1 {
 		return ErrNoRowsInFile
@@ -67,19 +69,67 @@ func printParquetSchema(path string) error {
 	return nil
 }
 
-func printParquetFile(path string) error {
+func printParquetFile(path string, idxr getIndexer) error {
 	// Verrify the file exists
 	if !doesFileExist(path) {
 		return ErrFileNotFound
 	}
 
 	// Read in the parquet file
-	pr, err := readParquetFile(path)
+	pr, pfClose, err := readParquetFile(path)
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrCantReadFile, err)
 	}
+	defer pfClose()
+	defer pr.ReadStop()
 
-	fmt.Println(pr)
+	// Check the number of rows so the read doesn't fail
+	nrows := getNumRows(pr)
+	if nrows < 1 {
+		return ErrNoRowsInFile
+	}
+
+	// Read data from the file
+	res, err := pr.ReadByNumber(nrows)
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrReadingParquetFile, err)
+	}
+
+	// Get table's data type
+	dt := pr.ObjType
+
+	// Extract fields & col-names
+	fs := getStructFields(dt)
+	colNames := make([]interface{}, len(fs)+1)
+	colNames[0] = "" // Empty first column to store row index
+	for i, f := range fs {
+		colNames[i+1] = f.Name
+	}
+
+	// Create the table
+	tbl := table.New(colNames...)
+
+	// Style the table
+	headerFmt := color.New(tableHeaderStyle...).SprintfFunc()
+	firstRowFmt := color.New(tableFirstRowStyle...).SprintfFunc()
+	tbl.WithHeaderFormatter(headerFmt)
+	tbl.WithFirstColumnFormatter(firstRowFmt)
+
+	// Indexes to include
+	idxs := idxr.getIndexes(nrows)
+
+	// Add the data
+	for _, i := range idxs {
+		r := res[i]
+		e := reflect.ValueOf(r)
+		row := formatRow(fs, e)
+		irow := prependIndex(i, row)
+		tbl.AddRow(irow...)
+	}
+
+	// Print the table
+	tbl.Print()
+	fmt.Println()
 
 	return nil
 }
