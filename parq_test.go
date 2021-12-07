@@ -1,2 +1,1 @@
-// package parq_test
-package main
+package main_test
