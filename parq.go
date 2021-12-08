@@ -8,7 +8,7 @@ import (
 )
 
 // Version is the current version of the CLI
-const Version = "v0.0.7"
+const Version = "v0.0.8"
 
 func main() {
 	app := &cli.App{
