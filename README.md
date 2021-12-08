@@ -1,8 +1,15 @@
 # parq
 
+[![Test](https://github.com/a-poor/parq/actions/workflows/test.yml/badge.svg)](https://github.com/a-poor/parq/actions/workflows/test.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/a-poor/parq.svg)](https://pkg.go.dev/github.com/a-poor/parq)
+[![parq](https://snapcraft.io/parq/badge.svg)](https://snapcraft.io/parq)
+[![parq](https://snapcraft.io/parq/trending.svg?name=0)](https://snapcraft.io/parq)
+
 _created by Austin Poor_
 
 A CLI for examining parquet files.
+
+## About
 
 `parq` has the following capabilities:
 * _schema_: Shows a parquet file's column names and data types.
@@ -51,3 +58,43 @@ GLOBAL OPTIONS:
 COPYRIGHT:
    Copyright (c) 2021 Austin Poor
 ```
+
+## Installation
+
+### Homebrew
+
+```bash
+brew tap a-poor/parq
+brew install parq
+```
+
+### Snap
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/parq)
+
+```bash
+snap install parq
+```
+
+## Go Install
+
+```bash
+go install github.com/a-poor/parq
+```
+
+## License
+
+[MIT License](./LICENSE)
+
+## Contributing
+
+Contributions are welcome!
+
+* Suggest new features
+* Report bugs
+* Add docs
+* Add tests
+
+Or, just say hi and let me know if this app has been helpful!
+
+
