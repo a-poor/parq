@@ -28,7 +28,7 @@ USAGE:
    parq [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.0.8
+   v0.1.0
 
 DESCRIPTION:
    parq is a tool for exploring parquet files.
