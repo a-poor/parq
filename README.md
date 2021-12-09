@@ -76,11 +76,17 @@ brew install parq
 snap install parq
 ```
 
+_NOTE: There seem to be some issues currently with the snap install (see [here](https://github.com/a-poor/parq/issues/8)). Try installing with [Homebrew](https://github.com/a-poor/parq#homebrew), [go install](https://github.com/a-poor/parq#go-install), or from the [releases page](https://github.com/a-poor/parq/releases)._
+
 ## Go Install
 
 ```bash
 go install github.com/a-poor/parq
 ```
+
+## Precompiled Binaries
+
+Check out the [repo's releases page](https://github.com/a-poor/parq/releases).
 
 ## License
 
