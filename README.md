@@ -81,7 +81,7 @@ _NOTE: There seem to be some issues currently with the snap install (see [here](
 ## Go Install
 
 ```bash
-go install github.com/a-poor/parq
+go install github.com/a-poor/parq@latest
 ```
 
 ## Precompiled Binaries
